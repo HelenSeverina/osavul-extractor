@@ -95,7 +95,14 @@ def parse_records_from_csv(path: str):
 
 def build_output_lines_updated(records):
     out_lines = []
-    for rec in records:
+
+    def sort_key(rec):
+        dt, _ = try_parse_datetime(rec.get("date", ""))
+        return dt or datetime.min
+
+    records_sorted = sorted(records, key=sort_key, reverse=True)
+
+    for rec in records_sorted:
         raw_date = rec.get("date", "")
         url = rec.get("url", "")
         platform_raw = rec.get("platform", "")
@@ -122,6 +129,7 @@ def build_output_lines_updated(records):
 
         out_lines.append((line, url))
     return out_lines
+
 
 def write_output_docx(lines, out_path: str):
     doc = Document()
